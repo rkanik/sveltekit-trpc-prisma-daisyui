@@ -11,6 +11,7 @@ specifiers:
   '@typescript-eslint/parser': ^5.45.0
   autoprefixer: ^10.4.13
   daisyui: ^2.49.0
+  delay: ^5.0.0
   eslint: ^8.28.0
   eslint-config-prettier: ^8.5.0
   eslint-plugin-svelte3: ^4.0.0
@@ -32,6 +33,7 @@ dependencies:
   '@trpc/server': 10.9.0
   autoprefixer: 10.4.13_postcss@8.4.21
   daisyui: 2.49.0_gbtt6ss3tbiz4yjtvdr6fbrj44
+  delay: 5.0.0
   postcss: 8.4.21
   prisma: 4.9.0
   trpc-sveltekit: 3.2.4
@@ -890,6 +892,11 @@ packages:
 
   /defined/1.0.1:
     resolution: {integrity: sha512-hsBd2qSVCRE+5PmNdHt1uzyrFu5d3RwmFDKzyNZMFq/EwDNJF7Ee5+D5oEKF0hU6LhtoUF1macFvOe4AskQC1Q==}
+    dev: false
+
+  /delay/5.0.0:
+    resolution: {integrity: sha512-ReEBKkIfe4ya47wlPYf/gu5ib6yUG0/Aez0JQZQz94kiWtRQvZIQbTiehsnwHvLSWJnQdhVeqYue7Id1dKr0qw==}
+    engines: {node: '>=10'}
     dev: false
 
   /detect-indent/6.1.0:

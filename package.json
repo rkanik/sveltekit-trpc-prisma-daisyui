@@ -20,6 +20,7 @@
 		"@trpc/server": "^10.9.0",
 		"autoprefixer": "^10.4.13",
 		"daisyui": "^2.49.0",
+		"delay": "^5.0.0",
 		"postcss": "^8.4.21",
 		"prisma": "^4.9.0",
 		"trpc-sveltekit": "^3.2.4"
