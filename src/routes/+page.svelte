@@ -12,6 +12,15 @@
   };
 </script>
 
+<a
+
+  href="/users"
+  role="button"
+  class="secondary"
+  >
+  /users
+  </a
+>
 <h6>Loading data in<br /><code>+page.svelte</code></h6>
 
 <a
