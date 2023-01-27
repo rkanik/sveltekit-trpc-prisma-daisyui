@@ -4,12 +4,11 @@
 </script>
 
 <div>
-	<div>users</div>
+	<div class="flex justify-between">
+		<h3 class="text-xl font-bold">Projects</h3>
+		<label for="my-modal-3" class="btn btn-primary">New Project</label>
+	</div>
 
-	<!-- The button to open modal -->
-	<label for="my-modal-3" class="btn">open modal</label>
-
-	<!-- Put this part before </body> tag -->
 	<input type="checkbox" id="my-modal-3" class="modal-toggle" />
 	<div class="modal">
 		<div class="modal-box relative">
@@ -22,5 +21,5 @@
 		</div>
 	</div>
 
-	<pre><code>{JSON.stringify(data.users, null, 2)}</code></pre>
+	<pre><code>{JSON.stringify(data.projects, null, 2)}</code></pre>
 </div>
