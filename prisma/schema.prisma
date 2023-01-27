@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = "mysql://rkanik:1234@localhost:3306/sveltekit"
+}
+
+model User {
+  id Int @id @default(autoincrement())
+
+  name     String
+  email    String  @unique
+  password String?
+
+  // relations
+  userAvatar UserAvatar?
+  projects   Project[]
+
+  // timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("users")
+}
+
+model UserAvatar {
+  id Int @id @default(autoincrement())
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
+  attachmentId Int
+  attachment   Attachment @relation(fields: [attachmentId], references: [id])
+
+  @@map("user_avatars")
+}
+
+model Tag {
+  id Int @id @default(autoincrement())
+
+  name        String
+  projectTags ProjectTag[]
+
+  @@map("tags")
+}
+
+enum AttachmentType {
+  IMAGE
+  PDF
+}
+
+model Attachment {
+  id Int @id @default(autoincrement())
+
+  src       String
+  large     String?
+  medium    String?
+  thumbnail String?
+
+  name String
+  size Int            @default(0)
+  type AttachmentType @default(IMAGE)
+
+  // relations
+  userAvatars        UserAvatar[]
+  projectAttachments ProjectAttachment[]
+
+  // timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("attachments")
+}
+
+model Project {
+  id Int @id @default(autoincrement())
+
+  // relations
+  projectTags        ProjectTag[]
+  projectAttachments ProjectAttachment[]
+  //
+  userId             Int
+  user               User                @relation(fields: [userId], references: [id])
+
+  name          String
+  description   String
+  previewUrl    String?
+  sourceCodeUrl String?
+
+  // timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("projects")
+}
+
+model ProjectTag {
+  id Int @id @default(autoincrement())
+
+  // relations
+  tagId     Int
+  tag       Tag     @relation(fields: [tagId], references: [id])
+  // 
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id])
+
+  @@map("project_tags")
+}
+
+model ProjectAttachment {
+  id Int @id @default(autoincrement())
+
+  // relations
+  projectId    Int
+  project      Project    @relation(fields: [projectId], references: [id])
+  // 
+  attachmentId Int
+  attachment   Attachment @relation(fields: [attachmentId], references: [id])
+
+  @@map("project_attachments")
+}
