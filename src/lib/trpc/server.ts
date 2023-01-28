@@ -7,6 +7,6 @@ import type { RequestEvent } from '@sveltejs/kit'
 
 export const t = initTRPC.context<Context>().create()
 
-export const trpc = async (event?: RequestEvent) => {
+export const trpc = async (event: RequestEvent) => {
 	return router.createCaller(await createContext(event))
 }

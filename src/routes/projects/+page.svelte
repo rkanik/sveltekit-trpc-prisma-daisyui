@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte'
 	import { page } from '$app/stores'
 	import { trpc } from '$lib/trpc/client'
+	import { useAuthStore } from '$lib/stores/useAuthStore'
 
 	import type { PageData } from './$types'
 
@@ -14,6 +14,8 @@
 
 	type Projects = typeof data.projects
 	type Project = Projects[number]
+
+	const auth = useAuthStore()
 
 	const form = {
 		update: {

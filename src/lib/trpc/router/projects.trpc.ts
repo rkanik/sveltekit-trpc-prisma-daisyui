@@ -1,6 +1,9 @@
 import { z } from 'zod'
 import { t } from '$lib/trpc/server'
 import { prisma } from '$lib/server/prisma'
+import { useAuth } from '$lib/trpc/middlewares/useAuth'
+import { useLogger } from '$lib/trpc/middlewares/useLogger'
+import type { User } from '@prisma/client'
 
 const findOrCreateMany = async (tags: { name: string }[]) => {
 	return await Promise.all(
@@ -27,25 +30,30 @@ const findMe = async () => {
 }
 
 export const projects = t.router({
-	list: t.procedure.query(() => {
-		return prisma.project.findMany({
-			where: { deletedAt: null },
-			orderBy: [{ createdAt: 'desc' }],
-			include: {
-				user: {},
-				projectTags: {
-					select: {
-						tag: {
-							select: {
-								name: true
+	list: t.procedure
+		.use(useAuth)
+		.use(useLogger)
+		.query(({ ctx }) => {
+			return prisma.project.findMany({
+				where: { userId: ctx.user?.id, deletedAt: null },
+				orderBy: [{ createdAt: 'desc' }],
+				include: {
+					user: {},
+					projectTags: {
+						select: {
+							tag: {
+								select: {
+									name: true
+								}
 							}
 						}
 					}
 				}
-			}
-		})
-	}),
+			})
+		}),
 	create: t.procedure
+		.use(useAuth)
+		.use(useLogger)
 		.input(
 			z.object({
 				name: z.string().min(1, 'Name is required'),
@@ -62,12 +70,13 @@ export const projects = t.router({
 					.default([])
 			})
 		)
-		.mutation(async ({ input }) => {
-			const me = await findMe()
+		.mutation(async ({ input, ctx }) => {
+			const user = ctx.user as User
+
 			const tags = await findOrCreateMany(input.projectTags)
 			const project = await prisma.project.create({
 				data: {
-					userId: me.id,
+					userId: user.id,
 					name: input.name,
 					description: input.description,
 					previewUrl: input.previewUrl,

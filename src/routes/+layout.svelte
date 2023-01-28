@@ -1,5 +1,19 @@
-<script>
+<script lang="ts">
 	import '$lib/assets/css/tailwind.css'
+
+	import { useAuthStore } from '$lib/stores/useAuthStore'
+	import type { LayoutData } from './$types'
+
+	export let data: LayoutData
+
+	const auth = useAuthStore()
+	if (data.user) {
+		console.log('+layout.svelte', { id: data.user.id, token: !!data.token })
+		auth.set({
+			user: data.user,
+			token: data.token
+		})
+	}
 </script>
 
 <div class="bg-base-300">
@@ -10,10 +24,10 @@
 				<ul class="w-full rounded-md p-1 menu menu-compact menu-horizontal bg-base-100">
 					<li>
 						<!-- svelte-ignore a11y-invalid-attribute -->
-						<a href="#">App</a>
+						<a href="/">App</a>
 					</li>
 					<li>
-						<a>
+						<a href="/">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								class="h-5 w-5"
@@ -31,7 +45,7 @@
 					</li>
 
 					<li class="ml-auto">
-						<a>
+						<a href="/dasd">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								class="h-5 w-5"
@@ -48,7 +62,7 @@
 						</a>
 					</li>
 					<li>
-						<a>
+						<a href="/dfgdfg">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								class="h-5 w-5"
@@ -63,6 +77,14 @@
 								/></svg
 							>
 						</a>
+					</li>
+
+					<li>
+						{#if $auth.user}
+							<a href="/logout">Logout</a>
+						{:else}
+							<a href="/login">Login</a>
+						{/if}
 					</li>
 				</ul>
 			</div>
