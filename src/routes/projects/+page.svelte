@@ -12,7 +12,19 @@
 
 	export let data: PageData
 
+	type Projects = typeof data.projects
+	type Project = Projects[number]
+
 	const form = {
+		update: {
+			data: {
+				name: '',
+				description: '',
+				previewUrl: '',
+				sourceCodeUrl: '',
+				projectTags: []
+			} as any
+		},
 		create: {
 			data: {
 				name: '',
@@ -53,7 +65,14 @@
 					type: 'combobox',
 					label: 'Tags',
 					placeholder: 'Select tags...',
-					options: [],
+					options: () => {
+						return new Promise((resolve) => {
+							return trpc($page)
+								.tags.list.query()
+								.then((tags) => resolve(tags || []))
+								.catch(() => resolve([]))
+						})
+					},
 					combobox: {
 						optionValue: 'name',
 						optionText: 'name'
@@ -102,16 +121,12 @@
 	]
 
 	let modal = false
-	let tags: any[] = []
-
-	$: if (modal && !tags.length) {
-		onFetchTags()
-	}
+	let updateModal = false
 
 	const onSubmit = async (event: CustomEvent) => {
 		event.preventDefault()
 		try {
-			const project = await trpc().projects.create.mutate({
+			const project: Project = await trpc().projects.create.mutate({
 				...event.detail,
 				projectTags: event.detail.projectTags.map((tag: any) => {
 					return { id: tag.id, name: tag.name }
@@ -133,7 +148,7 @@
 		}
 	}
 
-	const onDelete = async (event: CustomEvent<{ id: number }>) => {
+	const onDelete = async (event: CustomEvent<Project>) => {
 		if (confirm('Are you sure you want to delete?')) {
 			try {
 				await trpc().projects.delete.mutate({ id: event.detail.id })
@@ -146,17 +161,15 @@
 		}
 	}
 
-	const onFetchTags = async () => {
-		console.log('onFetchTags')
-		try {
-			tags = (await trpc($page).tags.list.query()) || tags
-			form.create.fields[4].options = tags || []
-		} catch (error) {
-			console.log('onFetchTags', error)
+	const onInitUpdate = (event: CustomEvent<Project>) => {
+		form.update.data = {
+			...event.detail,
+			projectTags: event.detail.projectTags.map((projectTag) => {
+				return { name: projectTag.tag.name }
+			})
 		}
+		updateModal = true
 	}
-
-	onMount(() => {})
 </script>
 
 <div>
@@ -165,16 +178,36 @@
 		<BaseModal
 			bind:value={modal}
 			title="Create new project"
-			activator={{ class: 'btn btn-primary', text: 'New Project' }}
+			activator={{ class: 'btn btn-sm btn-primary', text: 'New Project' }}
 		>
-			<BaseForm bind:data={form.create.data} fields={form.create.fields} on:submit={onSubmit} />
+			<BaseForm
+				bind:data={form.create.data}
+				fields={form.create.fields}
+				on:submit={onSubmit}
+				on:cancel={() => (modal = false)}
+			/>
+		</BaseModal>
+
+		<BaseModal bind:value={updateModal} activator={false} title="Update Project">
+			<BaseForm
+				bind:data={form.update.data}
+				fields={form.create.fields}
+				on:submit={onSubmit}
+				on:cancel={() => (updateModal = false)}
+			/>
 		</BaseModal>
 	</div>
 
-	<div class="overflow-x-auto w-full">
+	<div class="overflow-x-auto w-full mt-4">
 		<BaseDataTable {headers} items={data.projects}>
 			<svelte:fragment slot="actions" let:item>
-				<BaseActionsDropdown {item} {actions} class="mx-4" on:delete={onDelete} />
+				<BaseActionsDropdown
+					{item}
+					{actions}
+					class="mx-4"
+					on:delete={onDelete}
+					on:update={onInitUpdate}
+				/>
 			</svelte:fragment>
 
 			<svelte:fragment slot="item" let:value let:item let:header>

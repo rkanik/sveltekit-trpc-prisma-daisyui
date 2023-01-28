@@ -2,6 +2,48 @@
 	import { onMount } from 'svelte'
 	import { fly } from 'svelte/transition'
 	import cn from 'classnames'
+	import BaseTeleport from './BaseTeleport.svelte'
+
+	// Options
+	type OptionsProps = any[] | ((q?: string) => Promise<any[]>)
+
+	let optionHeight = 48
+	let optionsMaxHeight = 384
+	let filtered: any[] = []
+	let innerOptions: any[] = []
+	export let options: OptionsProps = []
+
+	const fetchOptions = async () => {
+		if (Array.isArray(options)) return options
+		if (typeof options === 'function') {
+			return await options()
+		}
+		return []
+	}
+
+	$: {
+		filtered = inputValue
+			? innerOptions.filter((option) => {
+					return option[optionText].toLowerCase().includes(inputValue.toLowerCase())
+			  })
+			: innerOptions
+	}
+
+	// $: if (value && innerOptions.length) {
+	// 	console.log({ innerOptions, value, selected })
+	// }
+
+	onMount(async () => {
+		innerOptions = await fetchOptions()
+		selected = value
+			? innerOptions.reduce((selected, option) => {
+					return value.includes(option.value)
+						? { ...selected, [option.value]: option }
+						: selected
+			  }, {})
+			: selected
+	})
+
 	export let id = ''
 
 	export let optionText = 'text'
@@ -10,7 +52,6 @@
 	export let value: any[] = []
 	export let readonly = false
 	export let placeholder = ''
-	export let options: any[] = []
 
 	let input: any,
 		inputValue: any,
@@ -18,8 +59,7 @@
 		showOptions = false,
 		selected: any = {},
 		first = true,
-		slot: any,
-		filtered: any[] = []
+		slot: any
 
 	let el: HTMLDivElement
 	let optionsEl: HTMLDivElement
@@ -28,26 +68,26 @@
 		'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'
 
 	onMount(() => {
-		// slot.querySelectorAll('option').forEach((o) => {
-		// 	o.selected && !value.includes(o.value) && (value = [...value, o.value])
-		// 	options = [...options, { value: o.value, name: o.textContent }]
-		// })
 		first = false
-		if (value) {
-			selected = options.reduce((selected, option) => {
-				return value.includes(option.value) ? { ...selected, [option.value]: option } : selected
-			}, {})
-		}
 	})
 
 	$: if (el && optionsEl && showOptions) {
 		const rect = el.getBoundingClientRect()
-		// console.log(rect, optionsEl)
-		// top:${rect.top}px;
-		// left:${rect.left}px;
-		optionsEl.style.cssText = `
+		const offsetTop = rect.top + rect.height
+
+		let possibleHeight = filtered.length * optionHeight
+		possibleHeight = possibleHeight <= optionsMaxHeight ? possibleHeight : optionsMaxHeight
+
+		const canFitToBottom = window.innerHeight - (offsetTop + possibleHeight) > 0
+
+		optionsEl.style.cssText += `
+			z-index:9999;
+			left:${rect.left}px;
 			width:${rect.width}px;
 		`
+		optionsEl.style.cssText += canFitToBottom
+			? `top:${offsetTop}px;`
+			: `top:${rect.top - possibleHeight}px;`
 	}
 
 	$: if (!first) {
@@ -56,14 +96,6 @@
 			: Object.values(selected).map((option) => {
 					return option[optionValue]
 			  })
-	}
-
-	$: {
-		filtered = inputValue
-			? options.filter((option) => {
-					return option[optionText].toLowerCase().includes(inputValue.toLowerCase())
-			  })
-			: options
 	}
 
 	$: if ((activeOption && !filtered.includes(activeOption)) || (!activeOption && inputValue)) {
@@ -117,6 +149,7 @@
 			}
 			inputValue = ''
 		}
+
 		if ([38, 40].includes(e.keyCode)) {
 			const increment = e.keyCode === 38 ? -1 : 1
 			const calcIndex = filtered.indexOf(activeOption) + increment
@@ -152,7 +185,7 @@
 			remove(value)
 		} else {
 			add(
-				options.find((option) => {
+				innerOptions.find((option) => {
 					return option[optionValue] === value
 				})
 			)
@@ -230,165 +263,34 @@
 		<slot />
 	</select>
 
-	<div bind:this={optionsEl} class="fixed bg-base-200 w-full">
-		{#if showOptions}
-			<ul
-				class=""
-				transition:fly={{ duration: 200, y: 5 }}
-				on:mousedown|preventDefault={handleOptionMousedown}
-			>
-				{#each filtered as option}
-					<li
-						class={cn(
-							'cursor-pointer px-4 py-2 bg-base-200  hover:text-white',
-							selected[option[optionValue]] ? 'bg-primary text-white' : 'hover:bg-base-300',
-							{
-								'hover:bg-base-300': activeOption === option
-							}
-						)}
-						data-value={option[optionValue]}
+	<BaseTeleport to="body">
+		<div bind:this={optionsEl} class="fixed">
+			{#if showOptions}
+				<div class="p-2 bg-gray-600 overflow-hidden rounded-lg">
+					<ul
+						class="menu max-h-96 overflow-y-auto flex-nowrap"
+						transition:fly={{ duration: 200, y: 5 }}
+						on:mousedown|preventDefault={handleOptionMousedown}
 					>
-						{option[optionText]}
-					</li>
-				{/each}
-			</ul>
-		{/if}
-	</div>
+						{#each filtered as option}
+							<li>
+								<a
+									data-value={option[optionValue]}
+									href="javascript:void(0)"
+									on:click={(e) => e.preventDefault()}
+									class={cn('rounded-lg', {
+										'bg-black bg-opacity-20': activeOption === option,
+										'bg-purple-500 bg-opacity-20 text-white':
+											selected[option[optionValue]]
+									})}
+								>
+									{option[optionText]}
+								</a>
+							</li>
+						{/each}
+					</ul>
+				</div>
+			{/if}
+		</div>
+	</BaseTeleport>
 </div>
-
-<style>
-	/* .multiselect {
-		background-color: white;
-		border-bottom: 1px solid hsl(0, 0%, 70%);
-	}
-	.multiselect:not(.readonly):hover {
-		border-bottom-color: hsl(0, 0%, 50%);
-	}
-
-	.tokens {
-		align-items: center;
-		display: flex;
-		flex-wrap: wrap;
-		position: relative;
-	}
-	.tokens::after {
-		background: none repeat scroll 0 0 transparent;
-		bottom: -1px;
-		content: '';
-		display: block;
-		height: 2px;
-		left: 50%;
-		position: absolute;
-		background: hsl(45, 100%, 51%);
-		transition: width 0.3s ease 0s, left 0.3s ease 0s;
-		width: 0;
-	}
-	.tokens.showOptions::after {
-		width: 100%;
-		left: 0;
-	}
-	.token {
-		align-items: center;
-		background-color: hsl(214, 17%, 92%);
-		border-radius: 1.25rem;
-		display: flex;
-		margin: 0.25rem 0.5rem 0.25rem 0;
-		max-height: 1.3rem;
-		padding: 0.25rem 0.5rem 0.25rem 0.5rem;
-		transition: background-color 0.3s;
-		white-space: nowrap;
-	}
-	.token:hover {
-		background-color: hsl(214, 15%, 88%);
-	}
-	.readonly .token {
-		color: hsl(0, 0%, 40%);
-	}
-	.token-remove,
-	.remove-all {
-		align-items: center;
-		background-color: hsl(214, 15%, 55%);
-		border-radius: 50%;
-		color: hsl(214, 17%, 92%);
-		display: flex;
-		justify-content: center;
-		height: 1.25rem;
-		margin-left: 0.25rem;
-		min-width: 1.25rem;
-	}
-	.token-remove:hover,
-	.remove-all:hover {
-		background-color: hsl(215, 21%, 43%);
-		cursor: pointer;
-	}
-
-	.actions {
-		align-items: center;
-		display: flex;
-		flex: 1;
-		min-width: 15rem;
-	}
-
-	input {
-		border: none;
-		font-size: 1.5rem;
-		line-height: 1.5rem;
-		margin: 0;
-		outline: none;
-		padding: 0;
-		width: 100%;
-	}
-
-	.dropdown-arrow path {
-		fill: hsl(0, 0%, 70%);
-	}
-	.multiselect:hover .dropdown-arrow path {
-		fill: hsl(0, 0%, 50%);
-	}
-
-	.icon-clear path {
-		fill: white;
-	}
-
-	.options {
-		box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1), 0px -2px 4px rgba(0, 0, 0, 0.1);
-		list-style: none;
-		margin-block-end: 0;
-		margin-block-start: 0;
-		max-height: 70vh;
-		overflow: auto;
-		padding-inline-start: 0;
-		width: 100%;
-	}
-	li {
-		background-color: white;
-		cursor: pointer;
-		padding: 0.5rem;
-	}
-	li:last-child {
-		border-bottom-left-radius: 0.2rem;
-		border-bottom-right-radius: 0.2rem;
-	}
-	li:not(.selected):hover {
-		background-color: hsl(214, 17%, 92%);
-	}
-	li.selected {
-		background-color: hsl(232, 54%, 41%);
-		color: white;
-	}
-	li.selected:nth-child(even) {
-		background-color: hsl(232, 50%, 45%);
-		color: white;
-	}
-	li.active {
-		background-color: hsl(214, 17%, 88%);
-	}
-	li.selected.active,
-	li.selected:hover {
-		background-color: hsl(232, 48%, 50%);
-	}
-
-	.hidden {
-		display: none;
-	} */
-</style>

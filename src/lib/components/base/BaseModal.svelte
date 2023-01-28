@@ -1,8 +1,16 @@
 <script lang="ts">
 	import BaseTeleport from './BaseTeleport.svelte'
+
+	type Activator =
+		| false
+		| {
+				class?: string
+				text?: string
+		  }
+
 	export let value: boolean = false
 	export let title = 'Base Modal'
-	export let activator = {
+	export let activator: Activator = {
 		class: 'btn',
 		text: 'Open Modal'
 	}
@@ -16,11 +24,11 @@
 	}
 </script>
 
-<span>
+{#if activator !== false}
 	<slot name="activator" onClick={onShow}>
-		<button class={activator.class} on:click={onShow}>{activator.text}</button>
+		<button class={activator.class || 'btn'} on:click={onShow}>{activator.text || 'Open'}</button>
 	</slot>
-</span>
+{/if}
 
 <BaseTeleport to="body">
 	<div class="base-modal">

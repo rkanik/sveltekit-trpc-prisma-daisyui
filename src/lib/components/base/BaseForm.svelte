@@ -31,6 +31,10 @@
 		e.preventDefault()
 		dispatch('submit', data)
 	}
+
+	const onCancel = () => {
+		dispatch('cancel')
+	}
 </script>
 
 <form on:submit|preventDefault class="grid grid-cols-12 gap-4">
@@ -77,7 +81,7 @@
 	{/each}
 
 	<div class="col-span-12 flex items-center justify-end space-x-4">
-		<button type="button" class="btn">Cancel</button>
+		<button type="button" class="btn" on:click={onCancel}>Cancel</button>
 		<button
 			type="button"
 			class="btn btn-primary {cn({ loading: isLoading })}"
