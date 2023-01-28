@@ -34,6 +34,7 @@
 	// }
 
 	onMount(async () => {
+		console.log('combobox:onMount')
 		innerOptions = await fetchOptions()
 		selected = value
 			? innerOptions.reduce((selected, option) => {

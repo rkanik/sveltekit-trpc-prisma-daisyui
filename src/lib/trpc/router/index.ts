@@ -1,13 +1,9 @@
 import delay from 'delay'
-import { initTRPC } from '@trpc/server'
 
-import type { Context } from '$lib/trpc/context'
-
+import { t } from '$lib/trpc/server'
 import { tags } from './tags.trpc'
 import { users } from './users.trpc'
 import { projects } from './projects.trpc'
-
-export const t = initTRPC.context<Context>().create()
 
 export const router = t.router({
 	tags,

@@ -18,17 +18,6 @@ const findOrCreateMany = async (tags: { name: string }[]) => {
 	)
 }
 
-const findMe = async () => {
-	return await prisma.user.upsert({
-		where: { email: 'rkanik.me@email.com' },
-		update: {},
-		create: {
-			name: 'RK Anik',
-			email: 'rkanik.me@email.com'
-		}
-	})
-}
-
 export const projects = t.router({
 	list: t.procedure
 		.use(useAuth)

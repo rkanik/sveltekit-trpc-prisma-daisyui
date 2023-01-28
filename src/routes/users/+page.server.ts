@@ -1,8 +1,10 @@
-import { trpc } from '$lib/trpc/server'
+import { router } from '$lib/trpc/router'
+import { createContext } from '$lib/trpc/context'
+
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async (event) => {
 	return {
-		users: (await trpc(event)).users.list()
+		users: router.createCaller(await createContext(event)).users.list()
 	}
 }

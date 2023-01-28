@@ -1,8 +1,7 @@
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
 
+import { jwt } from '$lib/server/jwt'
 import { prisma } from '$lib/server/prisma'
-import { JWT_SECRET } from '$env/static/private'
 
 import type { Actions } from './$types'
 import { useAuthStore } from '$lib/stores/useAuthStore'
@@ -33,7 +32,7 @@ export const actions: Actions = {
 				}
 			}
 
-			const token = jwt.sign(user, JWT_SECRET)
+			const token = jwt.sign(user, jwt.secret)
 			cookies.set('token', token, { path: '/' })
 
 			const auth = useAuthStore()

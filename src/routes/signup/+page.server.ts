@@ -1,11 +1,8 @@
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
 
+import { jwt } from '$lib/server/jwt'
 import { prisma } from '$lib/server/prisma'
-import { JWT_SECRET } from '$env/static/private'
 
-// import { invalid } from '@sveltejs/kit'
-// import { md5 } from 'hash-wasm'
 import type { Actions } from './$types'
 
 export const actions: Actions = {
@@ -40,7 +37,7 @@ export const actions: Actions = {
 				}
 			})
 
-			const token = jwt.sign(user, JWT_SECRET)
+			const token = jwt.sign(user, jwt.secret)
 			cookies.set('token', token, { path: '/' })
 
 			return { user, token, success: true }
