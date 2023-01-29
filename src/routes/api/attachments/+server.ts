@@ -1,23 +1,9 @@
+import { writeFile } from 'fs'
 import { json } from '@sveltejs/kit'
-import { existsSync, mkdirSync, writeFile } from 'fs'
+import { mkdirIfNotExistsSync } from '$lib/server/utils/mkdirIfNotExistsSync'
 
 import type { CustomFile } from '$lib/$types'
 import type { RequestHandler } from '@sveltejs/kit'
-
-const mkdirIfNotExistsSync = (dir: string) => {
-	if (dir) {
-		const dirs = dir.split('/')
-		let index = 0
-		let currentDir = dirs[index]
-		while (index < dirs.length) {
-			if (!existsSync(currentDir)) {
-				mkdirSync(currentDir)
-			}
-			index += 1
-			currentDir += `/${dirs[index]}`
-		}
-	}
-}
 
 export const POST: RequestHandler = async ({ request }) => {
 	const body = await request.json()

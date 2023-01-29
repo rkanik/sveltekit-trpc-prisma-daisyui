@@ -12,7 +12,25 @@ export const actions: Actions = {
 			const data = await request.formData()
 			const email = data.get('email') as string
 			const password = data.get('password') as string
-			const user = await prisma.user.findUnique({ where: { email } })
+			const user = await prisma.user.findUnique({
+				where: { email },
+				select: {
+					id: true,
+					name: true,
+					email: true,
+					password: true,
+					username: true,
+					userAvatar: {
+						select: {
+							attachment: {
+								select: {
+									src: true
+								}
+							}
+						}
+					}
+				}
+			})
 
 			if (!user) {
 				return {

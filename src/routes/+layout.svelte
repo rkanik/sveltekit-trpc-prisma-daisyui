@@ -79,13 +79,18 @@
 						</a>
 					</li>
 
-					<li>
-						{#if $auth.user}
+					{#if $auth.user}
+						<li>
+							<a href="/{$auth.user.username}">Profile</a>
+						</li>
+						<li>
 							<a href="/logout">Logout</a>
-						{:else}
+						</li>
+					{:else}
+						<li>
 							<a href="/login">Login</a>
-						{/if}
-					</li>
+						</li>
+					{/if}
 				</ul>
 			</div>
 
@@ -101,7 +106,9 @@
 			<ul class="menu p-4 w-80 bg-base-100">
 				<!-- Sidebar content here -->
 				<li><a href="/users">Users</a></li>
-				<li><a href="/projects">Projects</a></li>
+				{#if $auth.user}
+					<li><a href="/{$auth.user.username}/projects">Projects</a></li>
+				{/if}
 			</ul>
 		</div>
 	</div>

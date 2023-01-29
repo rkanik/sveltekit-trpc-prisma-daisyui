@@ -7,7 +7,10 @@ import { onDestroy } from 'svelte'
 import { browser } from '$app/environment'
 
 type AuthStore = {
-	user?: User
+	user?: Pick<Partial<User>, 'id'> & {
+		id: number
+		[key: string]: any
+	}
 	token?: string
 }
 

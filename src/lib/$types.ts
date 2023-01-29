@@ -1,13 +1,3 @@
-export type CustomFile = {
-	ext: string
-	name: string
-	type: string
-	size: number
-	base64: string
-	encoding: 'base64'
-	lastModified: number
-	upload: {
-		dir: string
-		name: string
-	}
-}
+import type { z, zCustomFile } from '$lib/zod'
+
+export type CustomFile = z.infer<typeof zCustomFile>
