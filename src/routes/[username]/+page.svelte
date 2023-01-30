@@ -44,20 +44,22 @@
 	}
 </script>
 
-{#if data.user}
+{#if data.currentParamUser}
 	<div class="avatar">
 		<div class="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
 			<img
 				alt="User avatar"
-				src={data.user.userAvatar?.attachment.src || '/img/placeholder.svg'}
+				src={data.currentParamUser.userAvatar?.attachment.src || '/img/placeholder.svg'}
 			/>
 		</div>
 	</div>
 
-	{#if $auth.user?.id === data.user.id}
+	<a href="/{data.currentParamUser.username}/projects" class="">Projects</a>
+
+	{#if $auth.user?.id === data.currentParamUser.id}
 		<input bind:files multiple type="file" accept="image/*" class="file-input w-full max-w-xs" />
 		<button class="btn btn-primary" on:click={() => onUploadAvatar(files)}>Upload</button>
 	{/if}
 
-	<BaseJson data={data.user} />
+	<BaseJson data={data.currentParamUser} />
 {/if}

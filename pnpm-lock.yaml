@@ -16,6 +16,7 @@ specifiers:
   bcrypt: ^5.1.0
   classnames: ^2.3.2
   daisyui: ^2.49.0
+  dayjs: ^1.11.7
   delay: ^5.0.0
   eslint: ^8.28.0
   eslint-config-prettier: ^8.5.0
@@ -46,6 +47,7 @@ dependencies:
   bcrypt: 5.1.0
   classnames: 2.3.2
   daisyui: 2.49.0_gbtt6ss3tbiz4yjtvdr6fbrj44
+  dayjs: 1.11.7
   delay: 5.0.0
   jsonwebtoken: 9.0.0
   lucide-svelte: 0.107.0_svelte@3.55.1
@@ -977,6 +979,10 @@ packages:
       tailwindcss: 3.2.4_postcss@8.4.21
     transitivePeerDependencies:
       - ts-node
+    dev: false
+
+  /dayjs/1.11.7:
+    resolution: {integrity: sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==}
     dev: false
 
   /debug/4.3.4:

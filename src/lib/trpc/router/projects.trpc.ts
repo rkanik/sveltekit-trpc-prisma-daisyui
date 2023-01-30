@@ -24,10 +24,22 @@ export const projects = t.router({
 	list: t.procedure
 		.use(useAuth)
 		.use(useLogger)
-		.query(({ ctx }) => {
+		.input(
+			z
+				.object({
+					where: z.object({
+						userId: z.number().optional()
+					})
+				})
+				.optional()
+		)
+		.query(({ ctx, input }) => {
 			return prisma.project.findMany({
-				where: { userId: ctx.user?.id, deletedAt: null },
 				orderBy: [{ createdAt: 'desc' }],
+				where: {
+					deletedAt: null,
+					userId: input?.where?.userId || ctx.user?.id
+				},
 				include: {
 					user: {
 						include: {
@@ -150,3 +162,5 @@ export const projects = t.router({
 		})
 	})
 })
+
+export type ProjectsRouter = typeof projects

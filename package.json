@@ -23,6 +23,7 @@
 		"bcrypt": "^5.1.0",
 		"classnames": "^2.3.2",
 		"daisyui": "^2.49.0",
+		"dayjs": "^1.11.7",
 		"delay": "^5.0.0",
 		"jsonwebtoken": "^9.0.0",
 		"lucide-svelte": "^0.107.0",

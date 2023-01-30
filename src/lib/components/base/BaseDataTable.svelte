@@ -82,11 +82,19 @@
 	<!-- foot -->
 	<tfoot>
 		<tr>
-			<th />
-			<th>Name</th>
-			<th>Job</th>
-			<th>Favorite Color</th>
-			<th />
+			{#if selectable}
+				<th>
+					<label>
+						<input type="checkbox" class="checkbox" />
+					</label>
+				</th>
+			{/if}
+			{#each headers as header}
+				<th>{header.text}</th>
+			{/each}
+			{#if actions}
+				<th />
+			{/if}
 		</tr>
 	</tfoot>
 </table>
