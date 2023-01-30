@@ -1,13 +1,30 @@
+import { unlink } from 'fs'
 import { t } from '$lib/trpc/server'
-import { prisma } from '$lib/server/prisma'
-import { useLogger } from '$lib/trpc/middlewares/useLogger'
-import { useAuth } from '$lib/trpc/middlewares/useAuth'
 import { zCustomFile } from '$lib/zod'
+import { prisma } from '$lib/server/prisma'
+import { useAuth } from '$lib/trpc/middlewares/useAuth'
+import { useLogger } from '$lib/trpc/middlewares/useLogger'
 import { writeCustomFile } from '$lib/server/utils/writeCustomFile'
 
 import type { User } from '@prisma/client'
 
 export const users = t.router({
+	me: t.procedure
+		.use(useLogger)
+		.use(useAuth)
+		.query(({ ctx }) => {
+			const user = ctx.user as User
+			return prisma.user.findUnique({
+				where: { id: user.id },
+				include: {
+					userAvatar: {
+						include: {
+							attachment: {}
+						}
+					}
+				}
+			})
+		}),
 	list: t.procedure
 		.use(useAuth)
 		.use(useLogger)
@@ -22,7 +39,6 @@ export const users = t.router({
 				}
 			})
 		}),
-
 	avatarUpdater: t.procedure
 		.use(useLogger)
 		.use(useAuth)
@@ -39,8 +55,6 @@ export const users = t.router({
 				src: upload.attachment.src.replace(/^static\//, '')
 			}
 
-			console.log({ attachmentData })
-
 			let userAvatar = await prisma.userAvatar.findUnique({
 				where: { userId: user.id },
 				include: { attachment: {} }
@@ -48,6 +62,11 @@ export const users = t.router({
 
 			// Have attachment and user Avatar
 			if (userAvatar) {
+				const oldAvatarPath = `static/${userAvatar.attachment.src}`
+				unlink(oldAvatarPath, (err) => {
+					if (err) console.log(`unlink::${oldAvatarPath}`, err)
+				})
+
 				const attachment = await prisma.attachment.update({
 					data: attachmentData,
 					where: { id: userAvatar.attachmentId }

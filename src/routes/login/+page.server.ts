@@ -14,19 +14,10 @@ export const actions: Actions = {
 			const password = data.get('password') as string
 			const user = await prisma.user.findUnique({
 				where: { email },
-				select: {
-					id: true,
-					name: true,
-					email: true,
-					password: true,
-					username: true,
+				include: {
 					userAvatar: {
-						select: {
-							attachment: {
-								select: {
-									src: true
-								}
-							}
+						include: {
+							attachment: {}
 						}
 					}
 				}
@@ -54,7 +45,7 @@ export const actions: Actions = {
 			cookies.set('token', token, { path: '/' })
 
 			const auth = useAuthStore()
-			auth.set({ user, token })
+			auth.update({ user, token })
 
 			return { user, token }
 			//

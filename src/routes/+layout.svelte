@@ -9,7 +9,7 @@
 	const auth = useAuthStore()
 	if (data.user) {
 		console.log('+layout.svelte', { id: data.user.id, token: !!data.token })
-		auth.set({
+		auth.updateKeep({
 			user: data.user,
 			token: data.token
 		})

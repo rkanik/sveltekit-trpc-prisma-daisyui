@@ -5,6 +5,8 @@
 	import { useAuthStore } from '$lib/stores/useAuthStore'
 	import { createCustomFiles } from '$lib/utils/createCustomFiles'
 
+	import type { AuthUserAvatar } from '$lib/$types'
+
 	const auth = useAuthStore()
 
 	let files: FileList
@@ -15,12 +17,27 @@
 		const userId = $auth.user.id.toString().padStart(5, '0')
 		const [avatar] = await createCustomFiles(files, {
 			dir: `static/uploads/users/${userId}`,
-			name: `USER_${userId}_AVATAR.{ext}`
+			name: `USER_${userId}_AVATAR_${Date.now()}.{ext}`
 		})
 
 		console.log({ avatar })
 
-		const updatedAvatar = await trpc().users.avatarUpdater.mutate(avatar)
+		const updatedAvatar = (await trpc().users.avatarUpdater.mutate(
+			avatar
+		)) as unknown as AuthUserAvatar
+
+		console.log('auth.update', {
+			user: {
+				...$auth.user,
+				userAvatar: updatedAvatar
+			}
+		})
+		auth.update({
+			user: {
+				...$auth.user,
+				userAvatar: updatedAvatar
+			}
+		})
 		console.log({ updatedAvatar })
 	}
 </script>

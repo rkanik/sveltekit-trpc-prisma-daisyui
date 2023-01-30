@@ -1,10 +1,6 @@
-export const routes = [
-	{
-		pathname: '/projects',
-		meta: {
-			auth: true
-		}
-	},
+import type { Route } from 'sveltekit-route-guard'
+
+export const routes: Route[] = [
 	{
 		pathname: '/users',
 		meta: {
@@ -21,6 +17,19 @@ export const routes = [
 		pathname: '/signup',
 		meta: {
 			auth: false
+		}
+	},
+	{
+		pathname: '/[username]',
+		meta: {
+			auth: true
+		}
+	},
+	{
+		pathname: '/[username]/projects',
+		meta: {
+			auth: true,
+			requireRoles: ['admin']
 		}
 	}
 ]

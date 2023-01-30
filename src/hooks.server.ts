@@ -1,11 +1,10 @@
 import { routes } from '$lib/routes'
-import { jwt } from '$lib/server/jwt'
 import { redirect } from '@sveltejs/kit'
 import { router } from '$lib/trpc/router'
 import { createContext } from '$lib/trpc/context'
 import { createTRPCHandle } from 'trpc-sveltekit'
 import { createRouteGuard } from 'sveltekit-route-guard'
-import { getCurrentUser } from '$lib/stores/useAuthStore'
+import { getCurrentUser } from '$lib/server/utils/getCurrentUser'
 
 import type { Handle } from '@sveltejs/kit'
 
@@ -23,8 +22,8 @@ export const handle: Handle = createRouteGuard({
 	next: trpcHandle,
 	beforeEach(to, event, next) {
 		// check if the user is authenticated ot not
-		const user = getCurrentUser(event, jwt)
-		if (user) event.locals.user = user
+		const user = getCurrentUser(event)
+		console.log('beforeEach', { user, to })
 
 		// not authenticated and requires authentication is true
 		if (!user && to.meta?.auth) {
