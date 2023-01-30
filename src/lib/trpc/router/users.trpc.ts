@@ -1,6 +1,6 @@
 import { unlink } from 'fs'
 import { t } from '$lib/trpc/server'
-import { zCustomFile } from '$lib/zod'
+import { z, zCustomFile } from '$lib/zod'
 import { prisma } from '$lib/server/prisma'
 import { useAuth } from '$lib/trpc/middlewares/useAuth'
 import { useLogger } from '$lib/trpc/middlewares/useLogger'
@@ -16,6 +16,30 @@ export const users = t.router({
 			const user = ctx.user as User
 			return prisma.user.findUnique({
 				where: { id: user.id },
+				include: {
+					userAvatar: {
+						include: {
+							attachment: {}
+						}
+					}
+				}
+			})
+		}),
+	findUnique: t.procedure
+		.use(useLogger)
+		.use(useAuth)
+		.input(
+			z.object({
+				where: z.object({
+					id: z.number().optional(),
+					email: z.string().optional(),
+					username: z.string().optional()
+				})
+			})
+		)
+		.query(({ input }) => {
+			return prisma.user.findUnique({
+				where: input.where,
 				include: {
 					userAvatar: {
 						include: {

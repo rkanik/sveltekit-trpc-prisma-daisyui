@@ -23,7 +23,6 @@ export const handle: Handle = createRouteGuard({
 	beforeEach(to, event, next) {
 		// check if the user is authenticated ot not
 		const user = getCurrentUser(event)
-		console.log('beforeEach', { user, to })
 
 		// not authenticated and requires authentication is true
 		if (!user && to.meta?.auth) {

@@ -5,8 +5,8 @@ import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = async (event) => {
 	const context = await createContext(event)
-	if (!context.user) return { user: undefined, token: undefined }
+	if (!context.user) return { currentUser: undefined, token: undefined }
 
-	const user = await router.createCaller(context).users.me()
-	return { user, token: context.token }
+	const currentUser = await router.createCaller(context).users.me()
+	return { currentUser, token: context.token }
 }

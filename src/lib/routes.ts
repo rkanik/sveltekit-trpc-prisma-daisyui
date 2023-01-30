@@ -18,18 +18,11 @@ export const routes: Route[] = [
 		meta: {
 			auth: false
 		}
-	},
-	{
-		pathname: '/[username]',
-		meta: {
-			auth: true
-		}
-	},
-	{
-		pathname: '/[username]/projects',
-		meta: {
-			auth: true,
-			requireRoles: ['admin']
-		}
 	}
+	// {
+	// 	pathname: '/[username]'
+	// },
+	// {
+	// 	pathname: '/[username]/projects'
+	// }
 ]

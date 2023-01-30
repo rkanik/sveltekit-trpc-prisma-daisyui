@@ -19,21 +19,20 @@ export const actions: Actions = {
 				return { error: "Passwords does't matach" }
 			}
 
-			// 👇 replace this with a non-naiive hashing algorithm
-			// const passwordHash = await md5(password)
-
 			const passwordHash = bcrypt.hashSync(password, 10)
 
 			const user = await prisma.user.create({
 				data: {
 					name,
 					email,
+					username: email.split('@').shift() || '',
 					password: passwordHash
 				},
 				select: {
 					id: true,
 					name: true,
-					email: true
+					email: true,
+					username: true
 				}
 			})
 

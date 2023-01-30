@@ -5,8 +5,10 @@
 	import { useAuthStore } from '$lib/stores/useAuthStore'
 	import { createCustomFiles } from '$lib/utils/createCustomFiles'
 
+	import type { PageData } from './$types'
 	import type { AuthUserAvatar } from '$lib/$types'
 
+	export let data: PageData
 	const auth = useAuthStore()
 
 	let files: FileList
@@ -42,15 +44,20 @@
 	}
 </script>
 
-{#if $auth.user}
+{#if data.user}
 	<div class="avatar">
 		<div class="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-			<img alt="User avatar" src={$auth.user.userAvatar?.attachment.src || ''} />
+			<img
+				alt="User avatar"
+				src={data.user.userAvatar?.attachment.src || '/img/placeholder.svg'}
+			/>
 		</div>
 	</div>
 
-	<input bind:files multiple type="file" accept="image/*" class="file-input w-full max-w-xs" />
-	<button class="btn btn-primary" on:click={() => onUploadAvatar(files)}>Upload</button>
+	{#if $auth.user?.id === data.user.id}
+		<input bind:files multiple type="file" accept="image/*" class="file-input w-full max-w-xs" />
+		<button class="btn btn-primary" on:click={() => onUploadAvatar(files)}>Upload</button>
+	{/if}
 
-	<BaseJson data={$auth.user} />
+	<BaseJson data={data.user} />
 {/if}

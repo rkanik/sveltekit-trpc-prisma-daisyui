@@ -7,11 +7,14 @@
 	export let data: LayoutData
 
 	const auth = useAuthStore()
-	if (data.user) {
-		console.log('+layout.svelte', { id: data.user.id, token: !!data.token })
+	if (data.currentUser) {
+		console.log('+layout.svelte', { 
+			token: !!data.token ,
+			id: data.currentUser.id, 
+		})
 		auth.updateKeep({
-			user: data.user,
-			token: data.token
+			token: data.token,
+			user: data.currentUser,
 		})
 	}
 </script>
