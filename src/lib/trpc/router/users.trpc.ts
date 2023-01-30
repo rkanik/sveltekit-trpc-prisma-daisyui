@@ -52,7 +52,7 @@ export const users = t.router({
 			const attachmentData = {
 				name: input.name,
 				size: input.size,
-				src: upload.attachment.src.replace(/^static\//, '')
+				src: upload.attachment.src.replace(/^static/, '')
 			}
 
 			let userAvatar = await prisma.userAvatar.findUnique({
@@ -62,7 +62,7 @@ export const users = t.router({
 
 			// Have attachment and user Avatar
 			if (userAvatar) {
-				const oldAvatarPath = `static/${userAvatar.attachment.src}`
+				const oldAvatarPath = `static${userAvatar.attachment.src}`
 				unlink(oldAvatarPath, (err) => {
 					if (err) console.log(`unlink::${oldAvatarPath}`, err)
 				})

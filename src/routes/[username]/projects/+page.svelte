@@ -9,6 +9,7 @@
 	import BaseModal from '$lib/components/base/BaseModal.svelte'
 	import BaseDataTable from '$lib/components/base/BaseDataTable.svelte'
 	import BaseActionsDropdown from '$lib/components/base/BaseActionsDropdown.svelte'
+	import { createCustomFiles } from '$lib/utils/createCustomFiles'
 
 	export let data: PageData
 
@@ -24,7 +25,8 @@
 				description: '',
 				previewUrl: '',
 				sourceCodeUrl: '',
-				projectTags: []
+				projectTags: [],
+				attachments: []
 			} as any
 		},
 		create: {
@@ -33,8 +35,9 @@
 				description: '',
 				previewUrl: '',
 				sourceCodeUrl: '',
-				projectTags: []
-			},
+				projectTags: [],
+				attachments: []
+			} as any,
 			fields: [
 				{
 					name: 'name',
@@ -61,6 +64,14 @@
 					type: 'textarea',
 					label: 'Description',
 					placeholder: 'Write project description...'
+				},
+				{
+					name: 'attachments',
+					type: 'file',
+					multiple: true,
+					accept: 'image/*',
+					label: 'Attachments',
+					placeholder: 'Choose attachments'
 				},
 				{
 					name: 'projectTags',
@@ -125,11 +136,15 @@
 	let modal = false
 	let updateModal = false
 
-	const onSubmit = async (event: CustomEvent) => {
+	const onSubmit = async (event: CustomEvent<typeof form.create.data>) => {
 		event.preventDefault()
 		try {
 			const project: Project = await trpc().projects.create.mutate({
 				...event.detail,
+				attachments: await createCustomFiles(event.detail.attachments, {
+					dir: `static/uploads/projects/{id}`,
+					name: `PROJECT_{id}_ATTACHMENT_{date}.{ext}`
+				}),
 				projectTags: event.detail.projectTags.map((tag: any) => {
 					return { id: tag.id, name: tag.name }
 				})
@@ -142,7 +157,8 @@
 					description: '',
 					previewUrl: '',
 					sourceCodeUrl: '',
-					projectTags: []
+					projectTags: [],
+					attachments: []
 				}
 			}
 		} catch (error) {
@@ -218,8 +234,8 @@
 						<div class="avatar">
 							<div class="mask mask-squircle w-12 h-12">
 								<img
-									alt="Avatar Tailwind CSS Component"
-									src="https://daisyui.com/tailwind-css-component-profile-2@56w.png"
+									alt={item.user.name}
+									src={item.user.userAvatar?.attachment.src || '/img/placeholder.svg'}
 								/>
 							</div>
 						</div>
@@ -232,10 +248,14 @@
 					<div class="flex items-center space-x-3">
 						<div class="avatar">
 							<div class="mask mask-squircle w-12 h-12">
-								<img
-									alt="Avatar Tailwind CSS Component"
-									src="https://daisyui.com/tailwind-css-component-profile-5@56w.png"
-								/>
+								{#if item.projectAttachments.length > 0}
+									<img
+										alt={item.projectAttachments[0].attachment.name}
+										src={item.projectAttachments[0].attachment.src}
+									/>
+								{:else}
+									<img alt="placeholder" src="/img/placeholder.svg" />
+								{/if}
 							</div>
 						</div>
 						<div>

@@ -18,8 +18,24 @@ type WrittenCustomFileSuccess = {
 
 type WrittenCustomFile = WrittenCustomFileError | WrittenCustomFileSuccess
 
-export const writeCustomFile = async (file: CustomFile) => {
+type Options = {
+	id?: number | string
+}
+
+const replacePlaceholders = (str: string, opts?: Options) => {
+	let { id } = opts || {}
+	if (id) {
+		id = id.toString().padStart(5, '0')
+		return str.replaceAll('{id}', id).replaceAll('{date}', Date.now().toString())
+	}
+	return str
+}
+
+export const writeCustomFile = async (file: CustomFile, opts?: Options) => {
 	return new Promise<WrittenCustomFile>((resolve) => {
+		file.upload.dir = replacePlaceholders(file.upload.dir, opts)
+		file.upload.name = replacePlaceholders(file.upload.name, opts)
+
 		mkdirIfNotExistsSync(file.upload.dir)
 		const path = `${file.upload.dir}/${file.upload.name}`
 		return writeFile(
@@ -36,7 +52,9 @@ export const writeCustomFile = async (file: CustomFile) => {
 				return resolve({
 					error: false,
 					message: 'File saved',
-					attachment: { src: path }
+					attachment: {
+						src: path.replace(/^static/, '')
+					}
 				})
 			}
 		)

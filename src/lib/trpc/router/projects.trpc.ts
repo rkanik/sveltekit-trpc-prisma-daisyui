@@ -4,6 +4,8 @@ import { prisma } from '$lib/server/prisma'
 import { useAuth } from '$lib/trpc/middlewares/useAuth'
 import { useLogger } from '$lib/trpc/middlewares/useLogger'
 import type { User } from '@prisma/client'
+import { zCustomFile } from '$lib/zod'
+import { writeCustomFile } from '$lib/server/utils/writeCustomFile'
 
 const findOrCreateMany = async (tags: { name: string }[]) => {
 	return await Promise.all(
@@ -27,7 +29,15 @@ export const projects = t.router({
 				where: { userId: ctx.user?.id, deletedAt: null },
 				orderBy: [{ createdAt: 'desc' }],
 				include: {
-					user: {},
+					user: {
+						include: {
+							userAvatar: {
+								include: {
+									attachment: {}
+								}
+							}
+						}
+					},
 					projectTags: {
 						select: {
 							tag: {
@@ -35,6 +45,11 @@ export const projects = t.router({
 									name: true
 								}
 							}
+						}
+					},
+					projectAttachments: {
+						include: {
+							attachment: {}
 						}
 					}
 				}
@@ -49,6 +64,7 @@ export const projects = t.router({
 				description: z.string().min(1, 'Description is required'),
 				previewUrl: z.string().optional(),
 				sourceCodeUrl: z.string().optional(),
+				attachments: z.array(zCustomFile).default([]),
 				projectTags: z
 					.array(
 						z.object({
@@ -72,6 +88,25 @@ export const projects = t.router({
 					sourceCodeUrl: input.sourceCodeUrl
 				}
 			})
+
+			for (const item of input.attachments) {
+				const written = await writeCustomFile(item, { id: project.id })
+				if (written.error) continue
+				const attachment = await prisma.attachment.create({
+					data: {
+						size: item.size,
+						name: item.name,
+						src: written.attachment.src
+					}
+				})
+				await prisma.projectAttachment.create({
+					data: {
+						projectId: project.id,
+						attachmentId: attachment.id
+					}
+				})
+			}
+
 			await prisma.projectTag.createMany({
 				data: tags.map((tag) => ({
 					tagId: tag.id,
@@ -82,7 +117,15 @@ export const projects = t.router({
 			return prisma.project.findUnique({
 				where: { id: project.id },
 				include: {
-					user: {},
+					user: {
+						include: {
+							userAvatar: {
+								include: {
+									attachment: {}
+								}
+							}
+						}
+					},
 					projectTags: {
 						select: {
 							tag: {
@@ -90,6 +133,11 @@ export const projects = t.router({
 									name: true
 								}
 							}
+						}
+					},
+					projectAttachments: {
+						include: {
+							attachment: {}
 						}
 					}
 				}
