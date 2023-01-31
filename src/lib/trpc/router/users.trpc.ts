@@ -27,7 +27,6 @@ export const users = t.router({
 		}),
 	findUnique: t.procedure
 		.use(useLogger)
-		.use(useAuth)
 		.input(
 			z.object({
 				where: z.object({
