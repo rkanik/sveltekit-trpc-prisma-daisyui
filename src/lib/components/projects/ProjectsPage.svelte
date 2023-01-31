@@ -7,7 +7,7 @@
 </script>
 
 {#if true}
-	<div class="grid grid-cols-12 gap-5">
+	<div class="grid grid-cols-1 md:grid-cols-6 xl:grid-cols-12 gap-5">
 		{#each projects as project}
 			<div class="col-span-3">
 				<ProjectCard {project} />
