@@ -1,5 +1,6 @@
 import { writeFile } from 'fs'
 import { mkdirIfNotExistsSync } from './mkdirIfNotExistsSync'
+import sharp from 'sharp'
 
 import type { CustomFile } from '$lib/$types'
 
@@ -26,9 +27,9 @@ const replacePlaceholders = (str: string, opts?: Options) => {
 	let { id } = opts || {}
 	if (id) {
 		id = id.toString().padStart(5, '0')
-		return str.replaceAll('{id}', id).replaceAll('{date}', Date.now().toString())
+		return str.replaceAll('{id}', id)
 	}
-	return str
+	return str.replaceAll('{date}', Date.now().toString())
 }
 
 export const writeCustomFile = async (file: CustomFile, opts?: Options) => {
@@ -38,6 +39,7 @@ export const writeCustomFile = async (file: CustomFile, opts?: Options) => {
 
 		mkdirIfNotExistsSync(file.upload.dir)
 		const path = `${file.upload.dir}/${file.upload.name}`
+
 		return writeFile(
 			path,
 			file[file.encoding]?.replace(/^data:([A-Za-z-+/]+);base64,/, '') || '',
@@ -49,6 +51,7 @@ export const writeCustomFile = async (file: CustomFile, opts?: Options) => {
 						message: err.message || ''
 					})
 				}
+
 				return resolve({
 					error: false,
 					message: 'File saved',

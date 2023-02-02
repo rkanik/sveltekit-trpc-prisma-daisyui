@@ -3,6 +3,7 @@
 	import { trpc } from '$lib/trpc/client'
 	import { createCustomFile } from '$lib/utils/createCustomFile'
 
+	import BaseImage from '$lib/components/base/BaseImage.svelte'
 	import CameraIcon from 'lucide-svelte/dist/svelte/icons/camera.svelte'
 
 	import type { LayoutData } from './$types'
@@ -22,7 +23,7 @@
 		const userId = data.currentUser.id.toString().padStart(5, '0')
 		const avatar = await createCustomFile(files[0], {
 			dir: `static/uploads/users/${userId}`,
-			name: `USER_${userId}_AVATAR_${Date.now()}.{ext}`
+			name: `USER_${userId}_AVATAR_{date}.{ext}`
 		})
 
 		if (!avatar) {
@@ -263,12 +264,11 @@
 				<ul class="menu w-96">
 					<div class="card card-compact bg-base-100 shadow-xl">
 						<figure class="h-64 relative group">
-							<img
-								alt="Shoes"
-								src={data.currentParamUser.userAvatar?.attachment.src ||
-									'/img/placeholder.svg'}
+							<BaseImage
+								alt={data.currentParamUser.name}
+								src={data.currentParamUser.userAvatar?.attachment?.base64}
+								lazySrc={data.currentParamUser.userAvatar?.attachment?.thumbnail}
 							/>
-
 							{#if isMe}
 								<div
 									class="absolute w-12 h-12 right-1 bottom-1 !grid place-items-center bg-black bg-opacity-60 rounded-full transition-all duration-300 transform scale-0 group-hover:scale-100"
@@ -292,10 +292,10 @@
 									<div
 										class="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2"
 									>
-										<img
-											alt="User avatar"
-											src={data.currentParamUser.userAvatar?.attachment.src ||
-												'/img/placeholder.svg'}
+										<BaseImage
+											alt={data.currentParamUser.name}
+											src={data.currentParamUser.userAvatar?.attachment?.base64}
+											lazySrc={data.currentParamUser.userAvatar?.attachment?.thumbnail}
 										/>
 									</div>
 

@@ -93,6 +93,7 @@
 			<input
 				required
 				type="password"
+				name="password"
 				placeholder="********"
 				class="input input-bordered border-l-0"
 				bind:this={passwordInput}

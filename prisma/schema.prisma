@@ -60,6 +60,7 @@ model Attachment {
   large     String?
   medium    String?
   thumbnail String?
+  base64    String?
 
   name String
   size Int            @default(0)
