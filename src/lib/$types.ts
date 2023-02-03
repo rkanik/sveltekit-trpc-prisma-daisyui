@@ -19,9 +19,27 @@ export type AuthUser =
 	  })
 	| Nope
 
+export type BaseOption = Record<string, unknown>
+export type BaseOptions = BaseOption[] | (() => Promise<BaseOption[]>)
+
+export type BaseField = {
+	name: string
+	type: 'text' | 'number' | 'tel' | 'email' | 'file' | 'textarea' | 'combobox'
+	label?: string
+	class?: string
+	placeholder?: string
+	options?: BaseOptions
+	prefix?: string
+	suffix?: string
+	combobox?: any
+	multiple?: boolean
+	accept?: string
+}
+
 // TRPC
 // ProjectsRouter
 export type ProjectsRouterInput = inferRouterInputs<ProjectsRouter>
 export type ProjectsRouterOutput = inferRouterOutputs<ProjectsRouter>
 export type TrpcProjects = ProjectsRouterOutput['list']
 export type TrpcProject = TrpcProjects[number]
+export type TrpcCreateProject = ProjectsRouterInput['create']

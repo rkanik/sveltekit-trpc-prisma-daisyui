@@ -14,3 +14,19 @@ export const zCustomFile = z.object({
 		name: z.string()
 	})
 })
+
+export const zAttachment = z.object({
+	id: z.number(),
+	src: z.string(),
+	large: z.string().nullable(),
+	medium: z.string().nullable(),
+	thumbnail: z.string().nullable(),
+	base64: z.string().nullable()
+})
+
+export const zProjectAttachment = z.object({
+	id: z.number(),
+	projectId: z.number(),
+	attachmentId: z.number(),
+	attachment: zAttachment
+})

@@ -2,18 +2,20 @@
 	import { page } from '$app/stores'
 	import { trpc } from '$lib/trpc/client'
 	import { createCustomFile } from '$lib/utils/createCustomFile'
+	import { useProjectsStore } from '$lib/stores/useProjectsStore'
 
 	import BaseImage from '$lib/components/base/BaseImage.svelte'
 	import CameraIcon from 'lucide-svelte/dist/svelte/icons/camera.svelte'
+	import ProjectForm from '$lib/components/forms/ProjectForm.svelte'
 
 	import type { LayoutData } from './$types'
 	import type { AuthUserAvatar } from '$lib/$types'
-	import BaseModal from '$lib/components/base/BaseModal.svelte'
-	import BaseForm from '$lib/components/base/BaseForm.svelte'
-	import { createCustomFiles } from '$lib/utils/createCustomFiles'
 
 	export let data: LayoutData
 	const isMe = data.currentUser?.id === data.currentParamUser?.id
+
+	// Projects
+	const projectsStore = useProjectsStore()
 
 	let files: FileList
 
@@ -41,119 +43,6 @@
 			...data.currentUser,
 			userAvatar
 		}
-	}
-
-	const form = {
-		update: {
-			data: {
-				name: '',
-				description: '',
-				previewUrl: '',
-				sourceCodeUrl: '',
-				projectTags: [],
-				attachments: []
-			} as any
-		},
-		create: {
-			data: {
-				name: '',
-				description: '',
-				previewUrl: '',
-				sourceCodeUrl: '',
-				projectTags: [],
-				attachments: []
-			} as any,
-			fields: [
-				{
-					name: 'name',
-					type: 'text',
-					label: 'Name',
-					placeholder: 'Enter the name of the project'
-				},
-				{
-					name: 'previewUrl',
-					type: 'text',
-					label: 'Preview URL',
-					prefix: 'https://',
-					placeholder: 'Live preview url of the project'
-				},
-				{
-					name: 'sourceCodeUrl',
-					type: 'text',
-					label: 'Source code URL',
-					prefix: 'https://',
-					placeholder: 'Open source code url like github or gitlab.'
-				},
-				{
-					name: 'description',
-					type: 'textarea',
-					label: 'Description',
-					placeholder: 'Write project description...'
-				},
-				{
-					name: 'attachments',
-					type: 'file',
-					multiple: true,
-					accept: 'image/*',
-					label: 'Attachments',
-					placeholder: 'Choose attachments'
-				},
-				{
-					name: 'projectTags',
-					type: 'combobox',
-					label: 'Tags',
-					placeholder: 'Select tags...',
-					options: () => {
-						return new Promise((resolve) => {
-							return trpc($page)
-								.tags.list.query()
-								.then((tags) => resolve(tags || []))
-								.catch(() => resolve([]))
-						})
-					},
-					combobox: {
-						optionValue: 'name',
-						optionText: 'name'
-					}
-				}
-			] as any[]
-		}
-	}
-
-	let modal = false
-
-	const onSubmit = async (event: CustomEvent<typeof form.create.data>) => {
-		event.preventDefault()
-		try {
-			const project = await trpc().projects.create.mutate({
-				...event.detail,
-				attachments: await createCustomFiles(event.detail.attachments, {
-					dir: `static/uploads/projects/{id}`,
-					name: `PROJECT_{id}_ATTACHMENT_{date}.{ext}`
-				}),
-				projectTags: event.detail.projectTags.map((tag: any) => {
-					return { id: tag.id, name: tag.name }
-				})
-			})
-			if (project) {
-				modal = false
-				// projects = [project, ...projects]
-				form.create.data = {
-					name: '',
-					description: '',
-					previewUrl: '',
-					sourceCodeUrl: '',
-					projectTags: [],
-					attachments: []
-				}
-			}
-		} catch (error) {
-			console.log('onSubmit', error)
-		}
-	}
-
-	const onProjectsRef = (e: CustomEvent) => {
-		console.log('onProjectsRef', e.detail)
 	}
 </script>
 
@@ -238,18 +127,10 @@
 							>
 
 							<div class="ml-auto">
-								<BaseModal
-									bind:value={modal}
-									title="Create new project"
-									activator={{ class: 'btn btn-primary', text: 'New Project' }}
-								>
-									<BaseForm
-										bind:data={form.create.data}
-										fields={form.create.fields}
-										on:submit={onSubmit}
-										on:cancel={() => (modal = false)}
-									/>
-								</BaseModal>
+								<ProjectForm
+									on:created={projectsStore.onProjectCreated}
+									on:updated={projectsStore.onProjectUpdated}
+								/>
 							</div>
 						</div>
 

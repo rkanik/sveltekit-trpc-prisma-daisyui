@@ -7,12 +7,10 @@
 	export let data: LayoutData
 
 	const auth = useAuthStore()
-	if (data.currentUser) {
-		auth.updateKeep({
-			token: data.token,
-			user: data.currentUser
-		})
-	}
+	auth.updateKeep({
+		token: data.token,
+		user: data.currentUser
+	})
 </script>
 
 <div class="bg-base-300">

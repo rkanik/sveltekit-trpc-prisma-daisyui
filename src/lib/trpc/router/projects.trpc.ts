@@ -3,9 +3,10 @@ import { t } from '$lib/trpc/server'
 import { prisma } from '$lib/server/prisma'
 import { useAuth } from '$lib/trpc/middlewares/useAuth'
 import { useLogger } from '$lib/trpc/middlewares/useLogger'
-import type { User } from '@prisma/client'
-import { zCustomFile } from '$lib/zod'
+import { zCustomFile, zProjectAttachment } from '$lib/zod'
 import { writeCustomFile } from '$lib/server/utils/writeCustomFile'
+
+import type { User, Attachment, ProjectAttachment } from '@prisma/client'
 
 const findOrCreateMany = async (tags: { name: string }[]) => {
 	return await Promise.all(
@@ -76,7 +77,8 @@ export const projects = t.router({
 				description: z.string().min(1, 'Description is required'),
 				previewUrl: z.string().optional(),
 				sourceCodeUrl: z.string().optional(),
-				attachments: z.array(zCustomFile).default([]),
+				projectAttachments: z.array(zProjectAttachment).default([]),
+				newAttachments: z.array(zCustomFile).default([]),
 				projectTags: z
 					.array(
 						z.object({
@@ -101,7 +103,7 @@ export const projects = t.router({
 				}
 			})
 
-			for (const item of input.attachments) {
+			for (const item of input.newAttachments) {
 				const written = await writeCustomFile(item, { id: project.id })
 				if (written.error) continue
 				const attachment = await prisma.attachment.create({
